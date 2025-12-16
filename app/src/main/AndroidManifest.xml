@@ -7,11 +7,14 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 这个权限用于进行网络定位 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- 这个权限用于访问GPS定位 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:name=".MyApplication"
@@ -29,11 +32,9 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="T7l0oKZq05Rp6Fm844RwNG6W8PIuZYH0" />
 
-        <service
-            android:name="com.baidu.location.f"
+        <service android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"
-            android:exported="false" />
+            android:process=":remote"/>
 
         <activity
             android:name=".DetailActivity"

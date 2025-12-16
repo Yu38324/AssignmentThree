@@ -50,7 +50,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("com.android.volley:volley:1.2.1")
-
+    implementation("com.squareup.okhttp3:okhttp:3.14.9")
+    implementation("com.squareup.okio:okio:1.17.5")
     // 测试库
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

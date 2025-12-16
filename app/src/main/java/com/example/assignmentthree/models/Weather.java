@@ -1,50 +1,23 @@
 package com.example.assignmentthree.models;
 
-public class Weather {
-    private double temperature;
-    private String condition;
-    private double humidity;
-    private double windSpeed;
+import java.io.Serializable;
 
-    // 构造方法
-    public Weather() {
-    }
+public class Weather implements Serializable {
+    private int tempC; // 摄氏度
+    private String condition; // 天气状况（如下雨、晴天）
+    private String windDir; // 风向
+    private int windKph; // 风速（公里/小时）
+    private int humidity; // 湿度
 
-    public Weather(double temperature, String condition) {
-        this.temperature = temperature;
-        this.condition = condition;
-    }
-
-    // Getter 和 Setter 方法
-    public double getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public double getHumidity() {
-        return humidity;
-    }
-
-    public void setHumidity(double humidity) {
-        this.humidity = humidity;
-    }
-
-    public double getWindSpeed() {
-        return windSpeed;
-    }
-
-    public void setWindSpeed(double windSpeed) {
-        this.windSpeed = windSpeed;
-    }
+    // Getter & Setter
+    public int getTempC() { return tempC; }
+    public void setTempC(int tempC) { this.tempC = tempC; }
+    public String getCondition() { return condition; }
+    public void setCondition(String condition) { this.condition = condition; }
+    public String getWindDir() { return windDir; }
+    public void setWindDir(String windDir) { this.windDir = windDir; }
+    public int getWindKph() { return windKph; }
+    public void setWindKph(int windKph) { this.windKph = windKph; }
+    public int getHumidity() { return humidity; }
+    public void setHumidity(int humidity) { this.humidity = humidity; }
 }

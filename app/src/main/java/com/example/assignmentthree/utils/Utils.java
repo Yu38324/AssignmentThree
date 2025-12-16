@@ -1,18 +1,31 @@
 package com.example.assignmentthree.utils;
 
-public class Utils {
+import android.util.Log;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-    // 格式化温度显示
-    public static String formatTemperature(double celsius) {
-        return String.format("%.1f°C", celsius);
+public class Utils {
+    private static final String TAG = "Utils";
+
+    /**
+     * JSON解析工具（示例）
+     */
+    public static String parseJsonString(JSONObject jsonObject, String key) {
+        try {
+            if (jsonObject != null && jsonObject.has(key)) {
+                return jsonObject.getString(key);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "JSON解析失败：" + e.getMessage());
+        }
+        return "";
     }
 
-    // 计算距离（简单示例）
-    public static String formatDistance(double distanceInMeters) {
-        if (distanceInMeters < 1000) {
-            return String.format("%.0f米", distanceInMeters);
-        } else {
-            return String.format("%.1f公里", distanceInMeters / 1000);
-        }
+    /**
+     * 坐标转换工具（如需转换坐标系可扩展）
+     */
+    public static double[] convertCoord(double lat, double lon) {
+        // 预留：百度BD09、高德GCJ02、WGS84坐标转换逻辑
+        return new double[]{lat, lon};
     }
 }

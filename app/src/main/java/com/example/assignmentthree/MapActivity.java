@@ -1,24 +1,34 @@
 package com.example.assignmentthree;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MapActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_map);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // 地图初始化代码将在后续添加
+        // 现在只确保Activity可以正常运行
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 地图恢复
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // 地图暂停
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 地图销毁
     }
 }

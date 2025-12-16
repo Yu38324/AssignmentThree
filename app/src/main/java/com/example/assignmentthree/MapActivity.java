@@ -221,24 +221,20 @@ public class MapActivity extends AppCompatActivity {
 
         // 设置标记点击监听器（跳转详情页）
         mBaiduMap.setOnMarkerClickListener(marker -> {
-            if (marker != null && marker.getTitle() != null && marker.getTitle().contains("公园")) {
-                // 提取公园信息，跳转DetailActivity
-                PoiInfo parkPoi = findPoiByTitle(marker.getTitle());
-                if (parkPoi != null) {
-                    Park park = new Park();
-                    park.setName(parkPoi.name);
-                    park.setAddress(parkPoi.address);
-                    park.setLatLng(parkPoi.location);
+            if (marker != null && marker.getTitle() != null) {
+                // 创建Park对象
+                Park park = new Park();
+                park.setName(marker.getTitle());
+                park.setAddress(""); // 地址暂时为空
+                park.setLatLng(marker.getPosition()); // 获取标记位置
+                park.setOpeningHours("全天开放");
 
-                    Intent intent = new Intent(MapActivity.this, DetailActivity.class);
-                    intent.putExtra("PARK_DATA", park);
-                    startActivity(intent);
-                }
-            } else if (marker != null && marker.getTitle() != null) {
-                Toast.makeText(this, "目的地：" + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MapActivity.this, DetailActivity.class);
+                intent.putExtra("PARK_DATA", park);
+                startActivity(intent);
+                return true;
             }
-            marker.showInfoWindow();
-            return true;
+            return false;
         });
     }
 
@@ -454,7 +450,7 @@ public class MapActivity extends AppCompatActivity {
                 .title(title)
                 .zIndex(10);
         destinationMarker = (Marker) mBaiduMap.addOverlay(options);
-        if (destinationMarker != null) destinationMarker.showInfoWindow();
+        // 移除showInfoWindow()调用
     }
 
     /**

@@ -22,7 +22,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView tvParkName, tvParkAddress, tvOpeningHours, tvWeather, tvRatingText;
     private RatingBar ratingBar;
     private RecyclerView rvReviews;
-    private Park selectedPark;
+    private Park selectedPark; // 全局Park对象
 
     private static final String BAIDU_MAP_AK = "T7l0oKZq05Rp6Fm844RwNG6W8PIuZYH0";
 
@@ -31,8 +31,19 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        // 步骤1：正确用Parcelable获取Park对象（唯一一次获取）
+        selectedPark = getIntent().getParcelableExtra("PARK_DATA");
+
+        // 步骤2：校验对象是否为空
+        if (selectedPark == null) {
+            Toast.makeText(this, "数据加载失败", Toast.LENGTH_SHORT).show();
+            finish(); // 关闭页面
+            return;
+        }
+
+        // 初始化UI + 加载数据（顺序不能乱）
         initViews();
-        loadParkData();
+        loadParkData(); // 现在用全局的selectedPark，不再重新获取
         loadStreetView();
         loadWeather();
         initEmptyReviews();
@@ -51,19 +62,24 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void loadParkData() {
-        selectedPark = (Park) getIntent().getSerializableExtra("PARK_DATA");
-        if (selectedPark == null) {
-            Toast.makeText(this, "数据加载失败", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        // 直接使用全局的selectedPark，不再重新从Intent获取！
+        // 移除错误的getSerializableExtra代码
 
+        // 绑定数据到UI
         tvParkName.setText(selectedPark.getName());
-        tvParkAddress.setText(selectedPark.getAddress());
+        // 处理地址为空的情况
+        tvParkAddress.setText(selectedPark.getAddress() != null ? selectedPark.getAddress() : "暂无地址");
 
+        // 处理开放时间
         if (selectedPark.getOpeningHours() != null) {
             tvOpeningHours.setText("Hours: " + selectedPark.getOpeningHours());
+        } else {
+            tvOpeningHours.setText("Hours: 暂无信息");
         }
+
+        // 补充评分显示（原代码缺失，可选）
+        ratingBar.setRating(selectedPark.getRating());
+        tvRatingText.setText(String.format("%.1f", selectedPark.getRating()) + " (" + selectedPark.getReviewCount() + " reviews)");
     }
 
     private void loadStreetView() {
@@ -117,6 +133,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         } catch (JSONException e) {
             tvWeather.setText("Current Weather: Data parsing failed");
+            e.printStackTrace(); // 打印异常，方便调试
         }
     }
 

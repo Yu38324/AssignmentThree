@@ -1,120 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@android:color/white">
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvPoiName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="?selectableItemBackground">
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@android:color/black" />
 
-        <TextView
-            android:id="@+id/tvPoiName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:text="Waikato Uni" />
-
-        <TextView
-            android:id="@+id/tvPoiAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="Waikato University, Hamilton, New Zealand" />
-
-        <TextView
-            android:id="@+id/tvPoiHours"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="Hours: 9:00 AM - 5:00 PM" />
-
-        <TextView
-            android:id="@+id/tvPoiPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="Phone: +64 7 838 4466" />
-
-        <TextView
-            android:id="@+id/tvPoiRating"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:color="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="Rating: 4.7/5 (1.2k reviews)" />
-
-        <TextView
-            android:id="@+id/tvPoiDesc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:text="A top-ranked university with beautiful campuses and excellent academic programs." />
-
-    </LinearLayout>
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvPoiAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="?selectableItemBackground"
-        android:layout_marginTop="1dp">
-
-        <TextView
-            android:id="@+id/tvPoiName2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:text="Hamilton Gardens" />
-
-        <TextView
-            android:id="@+id/tvPoiAddress2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="183 Cobham Dr, Hamilton 3216, New Zealand" />
-
-        <TextView
-            android:id="@+id/tvPoiHours2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="Hours: 8:00 AM - 8:00 PM" />
-
-        <TextView
-            android:id="@+id/tvPoiPhone2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            android:text="Phone: +64 7 838 6789" />
-
-    </LinearLayout>
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="4dp" />
 
 </LinearLayout>

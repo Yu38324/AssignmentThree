@@ -14,7 +14,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -53,13 +52,12 @@ import com.baidu.mapapi.search.poi.PoiSearch;
 import com.example.assignmentthree.models.Park;
 import com.example.assignmentthree.utils.PermissionManager;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import android.util.Log;
 
 public class MapActivity extends AppCompatActivity {
-    private static final String TAG = "BaiduMapSearch";
+    private static final String TAG = "MapActivity";
     private static final int REQUEST_LOC_PERMISSION = 1001;
 
     // UI组件
@@ -89,6 +87,7 @@ public class MapActivity extends AppCompatActivity {
 
     // 当前城市
     private String currentCity = "北京市";  // 默认值
+    private List<PoiInfo> nearbyParks = new ArrayList<>();  // 存储附近公园列表
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +107,7 @@ public class MapActivity extends AppCompatActivity {
         initMarkerIcons();
         initLocation();
 
-        // 检查并申请权限（调用工具类）
+        // 检查并申请权限
         PermissionManager.checkAndRequestLocationPermission(this, REQUEST_LOC_PERMISSION);
     }
 
@@ -116,13 +115,10 @@ public class MapActivity extends AppCompatActivity {
         mMapView = findViewById(R.id.bmapView);
         etSearch = findViewById(R.id.etSearch);
         btnMyLocation = findViewById(R.id.btnMyLocation);
-
-        // 查找搜索按钮（注意：XML中是ivSearchBtn）
         ivSearchBtn = findViewById(R.id.ivSearchBtn);
         recyclerSearchResults = findViewById(R.id.recyclerSearchResults);
         cardSearchResults = findViewById(R.id.cardSearchResults);
         progressBar = findViewById(R.id.progressBar);
-        btnMyLocation = findViewById(R.id.btnMyLocation);
 
         // 设置搜索按钮监听
         ivSearchBtn.setOnClickListener(v -> {
@@ -135,13 +131,11 @@ public class MapActivity extends AppCompatActivity {
             }
         });
 
-
-        // 设置EditText的编辑器动作（键盘上的搜索按钮）
+        // 设置EditText的编辑器动作
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
                     actionId == EditorInfo.IME_ACTION_DONE ||
                     (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-
                 String query = etSearch.getText().toString().trim();
                 if (!TextUtils.isEmpty(query)) {
                     searchDestination(query);
@@ -156,26 +150,12 @@ public class MapActivity extends AppCompatActivity {
             etSearch.requestFocus();
             showKeyboard();
         });
+
         etSearch.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showKeyboard();
             }
         });
-
-        // 可选：实时搜索建议
-        etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // 可以根据需要实现实时搜索建议
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-
 
         // 设置返回我的位置按钮
         btnMyLocation.setOnClickListener(v -> {
@@ -186,13 +166,12 @@ public class MapActivity extends AppCompatActivity {
             }
         });
 
-
-
-        // 初始化搜索结果列表
+        // 初始化搜索结果列表适配器
         searchResultAdapter = new SearchResultAdapter();
         recyclerSearchResults.setLayoutManager(new LinearLayoutManager(this));
         recyclerSearchResults.setAdapter(searchResultAdapter);
     }
+
     private void showKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
@@ -203,8 +182,7 @@ public class MapActivity extends AppCompatActivity {
     private void hideKeyboard() {
         View view = this.getCurrentFocus();
         if (view != null) {
-            android.view.inputmethod.InputMethodManager imm =
-                    (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
@@ -217,61 +195,75 @@ public class MapActivity extends AppCompatActivity {
         mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (cardSearchResults != null) {
-                    cardSearchResults.setVisibility(View.GONE);
-                }
-                if (etSearch != null) {
-                    etSearch.clearFocus();
-                    hideKeyboard();
-                }
+                hideSearchResults();
             }
 
             @Override
-            public void onMapPoiClick(MapPoi mapPoi) {}
+            public void onMapPoiClick(MapPoi mapPoi) {
+                hideSearchResults();
+            }
         });
 
-        // 设置标记点击监听器（跳转详情页）
         // 设置标记点击监听器（跳转详情页）
         mBaiduMap.setOnMarkerClickListener(marker -> {
             if (marker != null && marker.getTitle() != null) {
                 // 获取标记的真实位置
                 LatLng markerPosition = marker.getPosition();
                 if (markerPosition == null) {
-                    android.util.Log.e("MapActivity", "Marker position is null!");
+                    Log.e(TAG, "Marker position is null!");
                     return false;
                 }
 
-                android.util.Log.d("MapActivity", "Marker clicked: " + marker.getTitle() +
+                Log.d(TAG, "Marker clicked: " + marker.getTitle() +
                         " at " + markerPosition.latitude + ", " + markerPosition.longitude);
 
-                // 创建Park对象
-                Park park = new Park();
-                park.setName(marker.getTitle());
-                park.setAddress("");
+                // 检查是否是公园标记（标题以"公园"开头）
+                String title = marker.getTitle();
+                if (title.startsWith("公园")) {
+                    // 从附近公园列表中查找对应的公园
+                    int parkNumber = 0;
+                    try {
+                        // 从标题中提取编号，如"公园1: xxx"
+                        String numberStr = title.substring(2, title.indexOf(":"));
+                        parkNumber = Integer.parseInt(numberStr);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to parse park number from title: " + title);
+                    }
 
-                // 重要：使用标记的实际位置
-                park.setLatLng(markerPosition);
+                    // 创建Park对象
+                    Park park = new Park();
+                    if (parkNumber > 0 && parkNumber <= nearbyParks.size()) {
+                        PoiInfo parkInfo = nearbyParks.get(parkNumber - 1);
+                        park.setName(parkInfo.name);
+                        park.setAddress(parkInfo.address);
+                        park.setLatLng(parkInfo.location);
+                    } else {
+                        // 如果无法从列表中获取，使用标记信息
+                        park.setName(title);
+                        park.setAddress("");
+                        park.setLatLng(markerPosition);
+                    }
 
+                    park.setOpeningHours("全天开放");
 
-                park.setOpeningHours("全天开放");
-
-                Intent intent = new Intent(MapActivity.this, DetailActivity.class);
-                intent.putExtra("PARK_DATA", park);
-                startActivity(intent);
-                return true;
+                    Intent intent = new Intent(MapActivity.this, DetailActivity.class);
+                    intent.putExtra("PARK_DATA", park);
+                    startActivity(intent);
+                    return true;
+                }
             }
             return false;
         });
     }
 
-    // 根据标记标题查找对应的PoiInfo
-    private PoiInfo findPoiByTitle(String title) {
-        for (PoiInfo poi : searchResults) {
-            if (title.contains(poi.name)) {
-                return poi;
-            }
+    private void hideSearchResults() {
+        if (cardSearchResults != null) {
+            cardSearchResults.setVisibility(View.GONE);
         }
-        return null;
+        if (etSearch != null) {
+            etSearch.clearFocus();
+        }
+        hideKeyboard();
     }
 
     private void initPoiSearch() {
@@ -316,34 +308,36 @@ public class MapActivity extends AppCompatActivity {
         greenMarkerIcon = BitmapDescriptorFactory.fromResource(R.drawable.img_marker_location_park);
     }
 
-    /**
-     * 搜索目的地
-     */
     private void searchDestination(String keyword) {
+        Log.d(TAG, "搜索关键词: " + keyword);
         progressBar.setVisibility(View.VISIBLE);
         searchResults.clear();
         searchResultAdapter.notifyDataSetChanged();
 
-        // 在城市范围内搜索
         PoiCitySearchOption citySearchOption = new PoiCitySearchOption()
                 .city(currentCity)
                 .keyword(keyword)
                 .pageNum(0)
                 .pageCapacity(20);
+
+        Log.d(TAG, "搜索城市: " + currentCity);
         mPoiSearch.searchInCity(citySearchOption);
     }
 
-    /**
-     * 选择目的地并显示附近公园
-     */
     private void selectDestination(PoiInfo poiInfo) {
         if (poiInfo == null || poiInfo.location == null) {
             Toast.makeText(this, "无效的地点信息", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        Log.d(TAG, "selectDestination called for: " + poiInfo.name);
+
+        // 隐藏搜索结果列表
         cardSearchResults.setVisibility(View.GONE);
         clearMarkers();
+
+        // 清空之前的公园列表
+        nearbyParks.clear();
 
         // 添加目的地标记（红色）
         LatLng destination = poiInfo.location;
@@ -353,14 +347,17 @@ public class MapActivity extends AppCompatActivity {
         etSearch.setText(poiInfo.name);
         etSearch.clearFocus();
 
+        // 隐藏键盘
+        hideKeyboard();
+
         // 搜索附近的公园
         searchNearbyParks(destination);
+
+        Log.d(TAG, "卡片已设置为GONE");
     }
 
-    /**
-     * 搜索附近的公园
-     */
     private void searchNearbyParks(LatLng center) {
+        Log.d(TAG, "搜索附近公园，中心点: " + center.latitude + ", " + center.longitude);
         progressBar.setVisibility(View.VISIBLE);
 
         PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption()
@@ -376,23 +373,37 @@ public class MapActivity extends AppCompatActivity {
             public void onGetPoiResult(PoiResult poiResult) {
                 progressBar.setVisibility(View.GONE);
 
-                if (poiResult != null && poiResult.error == SearchResult.ERRORNO.NO_ERROR) {
-                    List<PoiInfo> parks = poiResult.getAllPoi();
-                    int count = Math.min(parks.size(), 10);
+                if (poiResult == null) {
+                    Log.d(TAG, "公园搜索结果为空");
+                    Toast.makeText(MapActivity.this, "未找到附近公园", Toast.LENGTH_SHORT).show();
+                    moveToLocation(center, 16);
+                    parkPoiSearch.destroy();
+                    return;
+                }
+
+                Log.d(TAG, "公园搜索错误码: " + poiResult.error);
+                Log.d(TAG, "公园搜索结果数量: " + poiResult.getAllPoi().size());
+
+                if (poiResult.error == SearchResult.ERRORNO.NO_ERROR) {
+                    nearbyParks.clear();
+                    nearbyParks.addAll(poiResult.getAllPoi());
+                    int count = Math.min(nearbyParks.size(), 10);
 
                     List<LatLng> allLatLngs = new ArrayList<>();
-                    allLatLngs.add(center);
+                    allLatLngs.add(center);  // 添加目的地位置
 
                     for (int i = 0; i < count; i++) {
-                        PoiInfo park = parks.get(i);
+                        PoiInfo park = nearbyParks.get(i);
                         addParkMarker(park.location, park.name, i + 1);
                         allLatLngs.add(park.location);
                     }
 
+                    // 调整地图视图以显示所有标记
                     adjustMapView(allLatLngs);
                     Toast.makeText(MapActivity.this,
                             "找到" + count + "个附近公园", Toast.LENGTH_SHORT).show();
                 } else {
+                    // 即使没有找到公园，也调整到目的地
                     List<LatLng> onlyDestination = new ArrayList<>();
                     onlyDestination.add(center);
                     adjustMapView(onlyDestination);
@@ -413,16 +424,21 @@ public class MapActivity extends AppCompatActivity {
         parkPoiSearch.searchNearby(nearbySearchOption);
     }
 
-    /**
-     * 调整地图视图以显示所有标记
-     */
     private void adjustMapView(List<LatLng> latLngs) {
-        if (latLngs == null || latLngs.isEmpty()) return;
+        Log.d(TAG, "adjustMapView called with " + (latLngs != null ? latLngs.size() : 0) + " points");
+
+        if (latLngs == null || latLngs.isEmpty()) {
+            Log.d(TAG, "adjustMapView: latLngs is null or empty");
+            return;
+        }
 
         if (latLngs.size() == 1) {
+            Log.d(TAG, "adjustMapView: Only 1 point, moving to it");
             moveToLocation(latLngs.get(0), 16);
             return;
         }
+
+        Log.d(TAG, "adjustMapView: Calculating view for " + latLngs.size() + " points");
 
         double minLat = Double.MAX_VALUE;
         double maxLat = Double.MIN_VALUE;
@@ -445,12 +461,11 @@ public class MapActivity extends AppCompatActivity {
         double lngDiff = maxLng - minLng;
         float zoomLevel = calculateZoomLevel(latDiff, lngDiff);
 
+        Log.d(TAG, "adjustMapView: Center = " + centerLat + ", " + centerLng + ", zoom = " + zoomLevel);
+
         moveToLocation(center, zoomLevel);
     }
 
-    /**
-     * 根据经纬度差计算合适的缩放级别
-     */
     private float calculateZoomLevel(double latDiff, double lngDiff) {
         double maxDiff = Math.max(latDiff, lngDiff * 1.5);
         if (maxDiff < 0.001) return 18;
@@ -466,9 +481,6 @@ public class MapActivity extends AppCompatActivity {
         else return 8;
     }
 
-    /**
-     * 添加目的地标记（红色）
-     */
     private void addDestinationMarker(LatLng location, String title) {
         OverlayOptions options = new MarkerOptions()
                 .position(location)
@@ -476,12 +488,8 @@ public class MapActivity extends AppCompatActivity {
                 .title(title)
                 .zIndex(10);
         destinationMarker = (Marker) mBaiduMap.addOverlay(options);
-        // 移除showInfoWindow()调用
     }
 
-    /**
-     * 添加公园标记（绿色）
-     */
     private void addParkMarker(LatLng location, String title, int number) {
         if (location == null) return;
         if (greenMarkerIcon == null) {
@@ -498,9 +506,6 @@ public class MapActivity extends AppCompatActivity {
         parkMarkers.add(parkMarker);
     }
 
-    /**
-     * 清除所有标记
-     */
     private void clearMarkers() {
         if (destinationMarker != null) {
             destinationMarker.remove();
@@ -512,18 +517,12 @@ public class MapActivity extends AppCompatActivity {
         parkMarkers.clear();
     }
 
-    /**
-     * 移动到指定位置
-     */
     private void moveToLocation(LatLng latLng, float zoomLevel) {
         if (latLng == null) return;
         MapStatusUpdate update = MapStatusUpdateFactory.newLatLngZoom(latLng, zoomLevel);
         mBaiduMap.animateMapStatus(update);
     }
 
-    /**
-     * 初始化定位
-     */
     public void initLocation() {
         try {
             mLocationClient = new LocationClient(getApplicationContext());
@@ -564,16 +563,24 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 搜索结果适配器
-     */
     private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvName, tvAddress;
+
             ViewHolder(View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvPoiName);
                 tvAddress = itemView.findViewById(R.id.tvPoiAddress);
+
+                // 设置点击监听器
+                itemView.setOnClickListener(v -> {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        PoiInfo poiInfo = searchResults.get(position);
+                        Log.d(TAG, "点击搜索结果: " + poiInfo.name);
+                        selectDestination(poiInfo);
+                    }
+                });
             }
         }
 
@@ -590,7 +597,6 @@ public class MapActivity extends AppCompatActivity {
             PoiInfo poiInfo = searchResults.get(position);
             holder.tvName.setText(poiInfo.name);
             holder.tvAddress.setText(poiInfo.address);
-            holder.itemView.setOnClickListener(v -> selectDestination(poiInfo));
         }
 
         @Override
@@ -599,9 +605,6 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 权限回调（委托给工具类）
-     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -644,5 +647,4 @@ public class MapActivity extends AppCompatActivity {
         if (mMapView != null) mMapView.onDestroy();
         super.onDestroy();
     }
-
 }

@@ -16,6 +16,7 @@ import com.example.assignmentthree.models.Park;
 import com.baidu.mapapi.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.util.Log;
 
 public class DetailActivity extends AppCompatActivity {
     private ImageView ivStreetView;
@@ -52,9 +53,9 @@ public class DetailActivity extends AppCompatActivity {
     private void initViews() {
         ivStreetView = findViewById(R.id.iv_street_view);
         tvParkName = findViewById(R.id.tv_park_name);
-        tvParkAddress = findViewById(R.id.tv_park_address);
-        tvOpeningHours = findViewById(R.id.tv_opening_hours);
-        tvWeather = findViewById(R.id.tv_weather);
+        tvParkAddress = findViewById(R.id.tv_content_address);
+        tvOpeningHours = findViewById(R.id.tv_content_hours);
+        tvWeather = findViewById(R.id.tv_content_weather);
         ratingBar = findViewById(R.id.rating_bar);
         tvRatingText = findViewById(R.id.tv_rating_text);
         rvReviews = findViewById(R.id.rv_reviews);
@@ -70,11 +71,10 @@ public class DetailActivity extends AppCompatActivity {
         // 处理地址为空的情况
         tvParkAddress.setText(selectedPark.getAddress() != null ? selectedPark.getAddress() : "暂无地址");
 
-        // 处理开放时间
         if (selectedPark.getOpeningHours() != null) {
-            tvOpeningHours.setText("Hours: " + selectedPark.getOpeningHours());
+            tvOpeningHours.setText(selectedPark.getOpeningHours());
         } else {
-            tvOpeningHours.setText("Hours: 暂无信息");
+            tvOpeningHours.setText("暂无信息");
         }
 
         // 补充评分显示（原代码缺失，可选）
@@ -102,38 +102,73 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void loadWeather() {
-        if (selectedPark == null || selectedPark.getLatLng() == null) return;
+        if (selectedPark == null || selectedPark.getLatLng() == null) {
+            tvWeather.setText("天气: 数据不可用");
+            return;
+        }
 
-        // 百度地图天气服务需要行政区划代码
-        // 这里假设Park对象有getDistrictId()方法获取行政区划代码
-        String districtId = "110000"; // 默认为北京，实际应从Park对象获取
+        LatLng latLng = selectedPark.getLatLng();
+
+        // 和风天气API Key - 替换为你的实际Key
+        final String QWEATHER_KEY = "c04281f1653043c1b7177ef3adabac76";
+
+        // 构建和风天气API URL
+        // 使用经纬度查询实时天气
         String url = String.format(
-                "https://api.map.baidu.com/weather/v1/?district_id=%s&data_type=now&ak=%s",
-                districtId, BAIDU_MAP_AK
+                "https://devapi.qweather.com/v7/weather/now?location=%.6f,%.6f&key=%s",
+                latLng.longitude, latLng.latitude, QWEATHER_KEY  // 注意：和风天气是"经度,纬度"
         );
+
+        android.util.Log.d("DetailActivity", "QWeather URL: " + url);
 
         JsonObjectRequest request = new JsonObjectRequest(
                 com.android.volley.Request.Method.GET, url, null,
-                response -> parseWeatherResponse(response),
-                error -> tvWeather.setText("Current Weather: Data unavailable")
+                response -> {
+                    android.util.Log.d("DetailActivity", "QWeather response: " + response.toString());
+                    parseQWeatherResponse(response);
+                },
+                error -> {
+                    android.util.Log.e("DetailActivity", "QWeather error: " + error.getMessage());
+                    tvWeather.setText("天气: 获取失败，请重试");
+                }
         );
 
         APIManager.getInstance(this).addToRequestQueue(request);
     }
 
-    private void parseWeatherResponse(JSONObject response) {
+    private void parseQWeatherResponse(JSONObject response) {
         try {
-            if (response.getInt("status") == 0) {
-                JSONObject now = response.getJSONObject("result").getJSONObject("now");
+            if ("200".equals(response.optString("code"))) {
+                JSONObject now = response.getJSONObject("now");
+
+                String temp = now.optString("temp", "N/A");
+                String text = now.optString("text", "未知");
+                String feelsLike = now.optString("feelsLike", "N/A");
+                String humidity = now.optString("humidity", "N/A");
+                String windSpeed = now.optString("windSpeed", "N/A");
+                String windDir = now.optString("windDir", "未知");
+                String pressure = now.optString("pressure", "N/A");
+                String vis = now.optString("vis", "N/A");
+
                 String weatherText = String.format(
-                        "Current Weather: Temperature %s°C, %s",
-                        now.getString("temp"), now.getString("text")
+                        "🌡️ %s°C (体感%s°C) | 💧 %s%%\n" +
+                                "🌤️ %s | 💨 %s级 %s\n" +
+                                "📊 气压: %shPa | 能见度: %skm",
+                        temp, feelsLike, humidity,
+                        text, windSpeed, windDir,
+                        pressure, vis
                 );
+
                 tvWeather.setText(weatherText);
+            } else {
+                String code = response.optString("code", "未知");
+                String message = response.optString("message", "未知错误");
+                android.util.Log.e("DetailActivity", "QWeather API error: " + code + " - " + message);
+                tvWeather.setText("天气: API错误(" + code + ")");
             }
         } catch (JSONException e) {
-            tvWeather.setText("Current Weather: Data parsing failed");
-            e.printStackTrace(); // 打印异常，方便调试
+            android.util.Log.e("DetailActivity", "JSON解析错误", e);
+            tvWeather.setText("天气: 数据解析失败");
         }
     }
 

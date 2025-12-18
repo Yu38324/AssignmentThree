@@ -6,92 +6,97 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <!-- 百度地图View -->
+    <!-- 1. 百度地图View -->
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 调整后的搜索栏 -->
+    <!-- 2. 顶部区域（图标 + 搜索框，垂直紧凑排列） -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:orientation="horizontal"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:padding="12dp"
-        android:elevation="8dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="16dp"
+        android:background="#FFFFFF">
 
-    <!-- 搜索输入框 -->
-    <EditText
-        android:id="@+id/etSearch"
-        android:layout_width="0dp"
+        <!-- 顶部小图标 -->
+        <ImageView
+            android:id="@+id/iv_top_logo"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/img_logo_main_park_locator"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="4dp" />
+        <!-- 3. 搜索框（ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp">
+
+            <!-- 搜索小图标 -->
+            <ImageButton
+                android:id="@+id/ivSearchBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@android:drawable/ic_menu_search"
+                android:background="?attr/selectableItemBackground"
+                android:scaleType="center"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Search" />
+
+            <!-- 搜索输入框 -->
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Search a place"
+                android:background="@android:color/transparent"
+                android:singleLine="true"
+                android:textSize="14sp"
+                android:paddingVertical="0dp" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 搜索结果列表 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSearchResults"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:hint="搜索目的地..."
-        android:background="@android:color/transparent"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:singleLine="true"
-        android:textSize="16sp"
-        android:minHeight="48dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true" />
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="120dp"
+        android:visibility="gone"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
 
-    <!-- 搜索按钮 -->
-    <Button
-        android:id="@+id/btnSearch"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="300dp" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- 进度条 -->
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="8dp"
-        android:text="搜索"
-        android:textSize="14sp"
-        android:paddingHorizontal="12dp"
-        android:minHeight="48dp" />
-
-    <!-- 我的位置按钮 -->
+        android:layout_gravity="center"
+        android:visibility="gone" />
     <ImageButton
         android:id="@+id/btnMyLocation"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/img_logo_main_park_locator" />
-</LinearLayout>
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:background="@android:drawable/ic_menu_mylocation"
+        android:contentDescription="My Location" />
 
-    <!-- 搜索结果列表 - 调整位置 -->
-<androidx.cardview.widget.CardView
-    android:id="@+id/cardSearchResults"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginTop="?attr/actionBarSize"
-    android:visibility="gone"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="8dp"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recyclerSearchResults"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:maxHeight="400dp" />
-    </androidx.cardview.widget.CardView>
-
-    <!-- 进度条 -->
-<ProgressBar
-    android:id="@+id/progressBar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:visibility="gone" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

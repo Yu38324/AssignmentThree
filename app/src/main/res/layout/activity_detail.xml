@@ -11,68 +11,115 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- 1. StreetView 图片 -->
+        <!-- 顶部小图标 -->
+        <ImageView
+            android:id="@+id/iv_top_logo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/img_logo_main_park_locator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 公园名称（居中） -->
+        <TextView
+            android:id="@+id/tv_park_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Jansen Park"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/iv_top_logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- StreetView 图片 -->
         <ImageView
             android:id="@+id/iv_street_view"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
             android:background="#E0E0E0"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- 2. 公园名称 -->
-        <TextView
-            android:id="@+id/tv_park_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Jansen Park"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/iv_street_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- 3. 公园地址 -->
-        <TextView
-            android:id="@+id/tv_park_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Sherdale, Hamilton 3216, New Zealand"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintTop_toBottomOf="@id/tv_park_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- 4. 营业时间 -->
+        <!-- 1. Address 标题（黑体加粗） -->
         <TextView
-            android:id="@+id/tv_opening_hours"
+            android:id="@+id/tv_title_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hours: Opening hours not available"
-            android:textSize="14sp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_park_address"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:text="Address:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/iv_street_view"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- 5. 当前天气 -->
+        <!-- Address 内容（正常字体） -->
         <TextView
-            android:id="@+id/tv_weather"
+            android:id="@+id/tv_content_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current Weather: Temperature 12°C, Partly cloudy"
+            android:text="Sherdale, Hamilton 3216, New Zealand"
             android:textSize="14sp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_opening_hours"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_address"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- 6. 评分 -->
+        <!-- 2. Hours 标题（黑体加粗） -->
+        <TextView
+            android:id="@+id/tv_title_hours"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hours:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_content_address"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Hours 内容（正常字体） -->
+        <TextView
+            android:id="@+id/tv_content_hours"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Opening hours not available"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_hours"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- 3. Current Weather 标题（黑体加粗） -->
+        <TextView
+            android:id="@+id/tv_title_weather"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current Weather:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_content_hours"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Current Weather 内容（正常字体） -->
+        <TextView
+            android:id="@+id/tv_content_weather"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Temperature 12°C, Partly cloudy"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_weather"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- 评分区域 -->
         <LinearLayout
             android:id="@+id/ll_rating"
             android:layout_width="wrap_content"
@@ -80,7 +127,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_weather"
+            app:layout_constraintTop_toBottomOf="@id/tv_content_weather"
             app:layout_constraintStart_toStartOf="parent">
 
             <RatingBar
@@ -101,7 +148,7 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- 7. 评论标题 -->
+        <!-- 评论标题 -->
         <TextView
             android:id="@+id/tv_reviews_title"
             android:layout_width="match_parent"
@@ -114,7 +161,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- 8. 评论列表 -->
+        <!-- 评论列表 -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_reviews"
             android:layout_width="match_parent"

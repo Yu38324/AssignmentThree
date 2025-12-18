@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -52,8 +52,11 @@ import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
 import com.example.assignmentthree.models.Park;
 import com.example.assignmentthree.utils.PermissionManager;
+
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 public class MapActivity extends AppCompatActivity {
     private static final String TAG = "BaiduMapSearch";
@@ -63,7 +66,7 @@ public class MapActivity extends AppCompatActivity {
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     private EditText etSearch;
-    private Button btnSearch;
+    private ImageButton ivSearchBtn;
     private RecyclerView recyclerSearchResults;
     private CardView cardSearchResults;
     private ProgressBar progressBar;
@@ -103,6 +106,7 @@ public class MapActivity extends AppCompatActivity {
 
         // 初始化标记图标
         initMarkerIcons();
+        initLocation();
 
         // 检查并申请权限（调用工具类）
         PermissionManager.checkAndRequestLocationPermission(this, REQUEST_LOC_PERMISSION);
@@ -111,14 +115,17 @@ public class MapActivity extends AppCompatActivity {
     private void initUI() {
         mMapView = findViewById(R.id.bmapView);
         etSearch = findViewById(R.id.etSearch);
-        btnSearch = findViewById(R.id.btnSearch);
+        btnMyLocation = findViewById(R.id.btnMyLocation);
+
+        // 查找搜索按钮（注意：XML中是ivSearchBtn）
+        ivSearchBtn = findViewById(R.id.ivSearchBtn);
         recyclerSearchResults = findViewById(R.id.recyclerSearchResults);
         cardSearchResults = findViewById(R.id.cardSearchResults);
         progressBar = findViewById(R.id.progressBar);
         btnMyLocation = findViewById(R.id.btnMyLocation);
 
         // 设置搜索按钮监听
-        btnSearch.setOnClickListener(v -> {
+        ivSearchBtn.setOnClickListener(v -> {
             String query = etSearch.getText().toString().trim();
             if (!TextUtils.isEmpty(query)) {
                 searchDestination(query);
@@ -127,6 +134,7 @@ public class MapActivity extends AppCompatActivity {
                 Toast.makeText(this, "请输入搜索内容", Toast.LENGTH_SHORT).show();
             }
         });
+
 
         // 设置EditText的编辑器动作（键盘上的搜索按钮）
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
@@ -168,6 +176,7 @@ public class MapActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
+
         // 设置返回我的位置按钮
         btnMyLocation.setOnClickListener(v -> {
             if (currentLocation != null) {
@@ -176,6 +185,8 @@ public class MapActivity extends AppCompatActivity {
                 Toast.makeText(this, "无法获取当前位置", Toast.LENGTH_SHORT).show();
             }
         });
+
+
 
         // 初始化搜索结果列表
         searchResultAdapter = new SearchResultAdapter();
@@ -220,13 +231,28 @@ public class MapActivity extends AppCompatActivity {
         });
 
         // 设置标记点击监听器（跳转详情页）
+        // 设置标记点击监听器（跳转详情页）
         mBaiduMap.setOnMarkerClickListener(marker -> {
             if (marker != null && marker.getTitle() != null) {
+                // 获取标记的真实位置
+                LatLng markerPosition = marker.getPosition();
+                if (markerPosition == null) {
+                    android.util.Log.e("MapActivity", "Marker position is null!");
+                    return false;
+                }
+
+                android.util.Log.d("MapActivity", "Marker clicked: " + marker.getTitle() +
+                        " at " + markerPosition.latitude + ", " + markerPosition.longitude);
+
                 // 创建Park对象
                 Park park = new Park();
                 park.setName(marker.getTitle());
-                park.setAddress(""); // 地址暂时为空
-                park.setLatLng(marker.getPosition()); // 获取标记位置
+                park.setAddress("");
+
+                // 重要：使用标记的实际位置
+                park.setLatLng(markerPosition);
+
+
                 park.setOpeningHours("全天开放");
 
                 Intent intent = new Intent(MapActivity.this, DetailActivity.class);
@@ -618,4 +644,5 @@ public class MapActivity extends AppCompatActivity {
         if (mMapView != null) mMapView.onDestroy();
         super.onDestroy();
     }
+
 }

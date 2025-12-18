@@ -1,30 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp"
-    android:background="#F5F5F5"
-    android:layout_marginBottom="8dp"
-    android:radius="8dp">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <!-- 单条评论的星级 -->
-    <RatingBar
-        android:id="@+id/item_rating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numStars="5"
-        android:stepSize="0.5"
-        android:isIndicator="true"
-        android:layout_marginBottom="4dp" />
 
-    <!-- 单条评论的内容 -->
-    <TextView
-        android:id="@+id/item_review_text"
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#333333"
-        android:text="Great park for a walk! Clean and quiet, with nice scenery." />
-</LinearLayout>
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="16dp">
+
+
+        <ImageView
+            android:id="@+id/iv_top_logo"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/img_logo_main_park_locator"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                android:layout_marginEnd="8dp" />
+
+            <!-- 搜索输入框 -->
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="Search a place"
+                android:background="@android:color/transparent"
+                android:singleLine="true"
+                android:textSize="14sp"
+                android:paddingVertical="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 搜索结果列表 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSearchResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="120dp"
+        android:visibility="gone"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="300dp" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- 进度条 -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
